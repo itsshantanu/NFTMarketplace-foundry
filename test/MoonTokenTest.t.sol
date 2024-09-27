@@ -6,7 +6,7 @@ import "../src/ERC20.sol"; // Adjust the path to your MoonToken contract
 
 contract MoonTokenTest is Test {
     MoonToken moonToken;
-    address user1 = address(0x1);
+    address user1 = address(0x1); //test
     address user2 = address(0x2);
 
     function setUp() public {
