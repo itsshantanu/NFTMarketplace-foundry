@@ -8,8 +8,8 @@ import "../src/Marketplace.sol";
 import "../src/ERC721.sol";
 
 contract DeployMarket is Script {
-    //ded
-    //Edit the file for test push to github
+
+    //Edit the script for test push
 
     function run() public {
         vm.startBroadcast();
