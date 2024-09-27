@@ -9,7 +9,6 @@ import "../src/ERC721.sol";
 
 contract DeployMarket is Script {
 
-    //Edit the script for test push
 
     function run() public {
         vm.startBroadcast();
