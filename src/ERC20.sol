@@ -2,7 +2,6 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-//test
 contract MoonToken is ERC20 {
     address public admin;
     constructor() ERC20("MoonToken", "MOON") {
