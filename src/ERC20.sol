@@ -12,4 +12,5 @@ contract MoonToken is ERC20 {
     function burn(uint amount) external {
         _burn(msg.sender, amount);
     }
+    //test test 
 }
