@@ -2,7 +2,7 @@
 
 # Exit immediately if a command exits with a non-zero status
 set -e
-
+#test
 # Step 0: Ensure required environment variables are set
 if [ -z "$BUILDBEAR_RPC_URL" ]; then
   echo "Error: BUILDBEAR_RPC_URL is not set. Please set it in the environment."
