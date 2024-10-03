@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./interfaces/InterfaceRoyalty.sol";
 import "forge-std/console.sol";
-
+//change for tesr
 contract MyNFT is ERC721URIStorage, InterfaceGetRoyalty{
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
