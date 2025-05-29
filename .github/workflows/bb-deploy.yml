@@ -2,14 +2,12 @@ name: Test  Action
 
 on: [push]
 
-
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -19,24 +17,6 @@ jobs:
           toolchain: stable
           override: true
 
-      # Cache Foundry repository
-      - name: Cache Foundry repository
-        uses: actions/cache@v3
-        with:
-          path: foundry
-          key: ${{ runner.os }}-foundry-${{ hashFiles('**/foundry/.gitmodules') }}
-          restore-keys: |
-            ${{ runner.os }}-foundry-
-
-      # Cache build artifacts
-      - name: Cache build artifacts
-        uses: actions/cache@v3
-        with:
-          path: $HOME/.config/.foundry/bin
-          key: ${{ runner.os }}-forge-${{ hashFiles('foundry/Cargo.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-forge-
-
       - name: Clone Foundry repository
         run: |
           if [ ! -d "foundry" ]; then
@@ -44,14 +24,48 @@ jobs:
           fi
         shell: bash
 
-      - name: Build Foundry from source
+      - name: Set Foundry commit hash
+        id: foundry_hash
+        run: echo "hash=$(git -C foundry rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Restore Foundry build cache
+        uses: actions/cache@v3
+        id: cache-foundry
+        with:
+          path: |
+            foundry/target
+            $HOME/.config/.foundry/bin
+          key: ${{ runner.os }}-foundry-build-${{ steps.foundry_hash.outputs.hash }}
+
+      - name: Build Foundry from source or copy from target
         run: |
-          cd foundry
-          cargo build
-          mkdir -p $HOME/.config/.foundry/bin
-          cp target/debug/forge $HOME/.config/.foundry/bin/
-          echo "PATH=$HOME/.config/.foundry/bin:$PATH" >> $GITHUB_ENV
-        shell: bash
+          FOUNDRY_BIN="$HOME/.config/.foundry/bin/forge"
+          TARGET_FORGE="foundry/target/debug/forge"
+
+          mkdir -p "$(dirname "$FOUNDRY_BIN")"
+
+          if [ -f "$FOUNDRY_BIN" ]; then
+            echo "✅ Forge binary found in bin path, skipping build."
+          elif [ -f "$TARGET_FORGE" ]; then
+            echo "✅ Forge binary found in target/debug, copying to bin."
+            cp "$TARGET_FORGE" "$FOUNDRY_BIN"
+          else
+            echo "❌ Forge binary not found, building from source..."
+            cd foundry
+            cargo build
+            cp target/debug/forge "$FOUNDRY_BIN"
+          fi
+
+          echo "$(dirname "$FOUNDRY_BIN")" >> $GITHUB_PATH
+
+      - name: Save Foundry build cache
+        if: steps.cache-foundry.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            foundry/target
+            $HOME/.config/.foundry/bin
+          key: ${{ runner.os }}-foundry-build-${{ steps.foundry_hash.outputs.hash }}
 
       - name: Show Forge version
         run: forge --version
@@ -64,16 +78,8 @@ jobs:
         run: forge test
         
       - name: test_ci
-        uses: BuildBearLabs/buildbear_x_action@fix/envError
+        uses: BuildBearLabs/buildbear_x_action@feat/modify-payload-with-new-api
         with: 
-          network: |
-            [
-              {
-                "chainId": 1
-              }
-            ]
-
-          deploy-command: "make exe"
           buildbear-token: "${{ secrets.BUILDBEAR_TOKEN }}"
         env:
           API_KEY: ${{ secrets.BUILDBEAR_TOKEN }} 
