@@ -80,6 +80,6 @@ jobs:
       - name: test_ci
         uses: BuildBearLabs/buildbear_x_action@v1.7.0
         with: 
-          buildbear-token: "${{ secrets.BUILDBEAR_API_KEY }}"
+          buildbear-api-key: "${{ secrets.BUILDBEAR_API_KEY }}"
         env:
           BUILDBEAR_BASE_URL: "${{ secrets.BUILDBEAR_BASE_URL }}"
