@@ -70,10 +70,6 @@ jobs:
       - name: Show Forge version
         run: forge --version
 
-      - name: Make bbOut dir
-        run: mkdir bbOut
-        shell: bash
-
       - name: Run BB Action Test
         run: forge test
         
